@@ -19,6 +19,15 @@ public class Neuron {
     private Double bias;
     private ActivationFunction activationFunction;
     private Double output;
+    private Double error;
+
+    public Double getError() {
+        return error;
+    }
+
+    public void setError(Double error) {
+        this.error = error;
+    }
 
     public Neuron(List<Double> weight, Double bias, ActivationFunction activationFunction) {
         this.weight = weight;
