@@ -10,10 +10,10 @@ import java.util.List;
 public class App {
 
     public static void main(String[] args) {
-        final int numberOfHiddenNeurons = 10;
-        final double learningRule = 0.3;
+        final int numberOfHiddenNeurons = 5;
+        final double learningRule = 3.0;
         final double targetMSE = 0.0000000005;
-        final int maxEpochs = 250;
+        final int maxEpochs = 10000;
 
 
         final List<DataSetRow> dataSet = createDataSet();

@@ -42,7 +42,7 @@ public class DeltaRule {
                 // calculate input layer result (only takes input and sets it as output)
                 final List<Double> calcInputLayerOutput = layer.calulcateOutput(row.getInputs());
                 final Layer hiddenLayer = layer.getNextLayer();
-                // calculate hidden layer result
+                // calculate hidden layer results
                 final List<Double> calculatedHiddenLayerOutput = hiddenLayer.calulcateOutput(calcInputLayerOutput);
                 final Layer outputLayer = hiddenLayer.getNextLayer();
                 // calculate neural network output
@@ -69,22 +69,24 @@ public class DeltaRule {
                     outputNeuron.setError(diff * derivative);
 
                     // adapt output outputNeuron's bias
-                    final double biasDelta = learningRate * outputNeuron.getError();
-                    outputNeuron.setBias(outputNeuron.getBias() + biasDelta);
+                    // bias = bias + (η * e * ψ’(u_3))
+                    outputNeuron.setBias(outputNeuron.getBias() + learningRate * outputNeuron.getError());
 
                     // for each connection between hidden and output layer neurons
                     for (int i = 0; i < outputNeuron.getInput().size(); i++) {
                         // adapt weights (v)
-                        //  v_j = v_j + learning rate * output of neuron in hidden layer with index i * "delta error"
-                        final Double delta = learningRate * outputNeuron.getInput().get(i) * outputNeuron.getError();
-                        outputNeuron.getWeight().set(i, outputNeuron.getWeight().get(i) + delta);
+                        // v_i = v_i + (η * o_i * e * ψ’(u_3))
+                        outputNeuron.getWeight().set(i, outputNeuron.getWeight().get(i) + learningRate * outputNeuron.getInput().get(i) * outputNeuron.getError());
 
                         Neuron hiddenNeuron = hiddenLayer.getNeurons().get(i);
-                        hiddenNeuron.setError(outputLayer.getNeurons().get(k).getError() * hiddenNeuron.derivate() * outputNeuron.getWeight().get(i));
+                        hiddenNeuron.setError(outputNeuron.getError() * hiddenNeuron.derivate() * outputNeuron.getWeight().get(i));
+                        // adapt hidden neuron's bias
+                        // bias = bias + (η * e * ψ’(u_3) * ψ´2 (u_i ) * v_i)
                         hiddenNeuron.setBias(hiddenNeuron.getBias() + learningRate * hiddenNeuron.getError());
                         for (int j = 0; j < hiddenNeuron.getInput().size(); j++) {
-                            final double hiddenInput = hiddenNeuron.getInput().get(j);
-                            hiddenNeuron.getWeight().set(j, hiddenNeuron.getWeight().get(j) + hiddenNeuron.getError() *  learningRate * hiddenInput);
+                            // adapt weights (w)
+                            // w_ji = w_ji + (η * x_j * e * ψ’(u_3) * ψ´2 (u_i) * v_i )
+                            hiddenNeuron.getWeight().set(j, hiddenNeuron.getWeight().get(j) + learningRate * hiddenNeuron.getInput().get(j) * hiddenNeuron.getError());
                         }
                     }
                 }
