@@ -16,7 +16,12 @@ public class InputNeuron extends Neuron {
     public InputNeuron(List<Double> weight, ActivationFunction activationFunction) {
         super(weight, 0.0, activationFunction);
     }
-    
-    
-    
+
+
+
+    public Double calculate(List<Double> input) {
+        setInput(input);
+        setOutput(input.get(0));
+        return getOutput();
+    }
 }
