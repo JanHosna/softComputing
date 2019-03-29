@@ -12,45 +12,36 @@ import java.util.stream.IntStream;
 /**
  * @author hos0052
  */
-public class DeltaRule {
+public class BackPropagation {
 
-    private Layer layer;
+    private Layer inputLayer;
     private Double learningRate;
-    private Double targetMse;
     private int maxEpochs;
 
-    public DeltaRule(InputLayer layer, Double learningRule, Double targetMse, int maxEpochs) {
-        this.layer = layer;
+    public BackPropagation(InputLayer inputLayer, Double learningRule, Double targetMse, int maxEpochs) {
+        this.inputLayer = inputLayer;
         this.learningRate = learningRule;
-        this.targetMse = targetMse;
         this.maxEpochs = maxEpochs;
     }
 
     public void train(List<DataSetRow> trainingSet) {
         int epochs = 0;
-        Double mse = Double.MAX_VALUE;
 
-        while (epochs < maxEpochs && mse > targetMse) {
+        while (epochs < maxEpochs) {
 
-            final List<Double> allExpected = new ArrayList<>(trainingSet.size());
-            final List<Double> allCalculated = new ArrayList<>(trainingSet.size());
-
+            System.out.println("Training epoch " + epochs);
 
             for (DataSetRow row : trainingSet) {
 
                 // forward propagation
-                // calculate input layer result (only takes input and sets it as output)
-                final List<Double> calcInputLayerOutput = layer.calulcateOutput(row.getInputs());
-                final Layer hiddenLayer = layer.getNextLayer();
+                // calculate input inputLayer result (only takes input and sets it as output)
+                final List<Double> calcInputLayerOutput = inputLayer.calulcateOutput(row.getInputs());
+                final Layer hiddenLayer = inputLayer.getNextLayer();
                 // calculate hidden layer results
                 final List<Double> calculatedHiddenLayerOutput = hiddenLayer.calulcateOutput(calcInputLayerOutput);
                 final Layer outputLayer = hiddenLayer.getNextLayer();
                 // calculate neural network output
                 final List<Double> calcOutput = outputLayer.calulcateOutput(calculatedHiddenLayerOutput);
-
-                // add expected result and actual result to lists, for MSE calculation later on
-                allCalculated.addAll(calcOutput);
-                allExpected.addAll(row.getExpectedOutputs());
 
                 // back propagation
                 // for each output layer outputNeuron
@@ -92,11 +83,35 @@ public class DeltaRule {
                 }
 
             }
-            mse = MSE(allExpected, allCalculated);
-            System.out.printf("Epoch %d, MSE %.10f\n", epochs, mse);
             epochs++;
 
         }
+    }
+
+    public void calculateMSE(List<DataSetRow> trainingSet) {
+
+        final List<Double> allExpected = new ArrayList<>(trainingSet.size());
+        final List<Double> allCalculated = new ArrayList<>(trainingSet.size());
+
+        for (DataSetRow row : trainingSet) {
+
+            // forward propagation
+            // calculate input inputLayer result (only takes input and sets it as output)
+            final List<Double> calcInputLayerOutput = inputLayer.calulcateOutput(row.getInputs());
+            final Layer hiddenLayer = inputLayer.getNextLayer();
+            // calculate hidden layer results
+            final List<Double> calculatedHiddenLayerOutput = hiddenLayer.calulcateOutput(calcInputLayerOutput);
+            final Layer outputLayer = hiddenLayer.getNextLayer();
+            // calculate neural network output
+            final List<Double> calcOutput = outputLayer.calulcateOutput(calculatedHiddenLayerOutput);
+
+            // add expected result and actual result to lists, for MSE calculation later on
+            allCalculated.addAll(calcOutput);
+            allExpected.addAll(row.getExpectedOutputs());
+        }
+
+        Double mse = MSE(allExpected, allCalculated);
+        System.out.printf("MSE %.10f\n", mse);
 
     }
 

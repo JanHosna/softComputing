@@ -13,6 +13,13 @@ import java.util.List;
  */
 public class InputLayer extends Layer {
 
+    @Override
+    public List<Double> calulcateOutput(List<Double> input) {
+        setInput(input);
+        setOutput(getInput());
+        return getOutput();
+    }
+
     public InputLayer(List<? extends Neuron> neurons, Layer previousLayer, Layer nextLayer) {
         super(neurons, null, nextLayer);
     }
