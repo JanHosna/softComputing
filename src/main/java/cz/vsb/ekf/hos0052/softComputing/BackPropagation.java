@@ -18,7 +18,7 @@ public class BackPropagation {
     private Double learningRate;
     private int maxEpochs;
 
-    public BackPropagation(InputLayer inputLayer, Double learningRule, Double targetMse, int maxEpochs) {
+    public BackPropagation(InputLayer inputLayer, Double learningRule, int maxEpochs) {
         this.inputLayer = inputLayer;
         this.learningRate = learningRule;
         this.maxEpochs = maxEpochs;

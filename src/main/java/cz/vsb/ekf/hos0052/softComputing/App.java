@@ -15,8 +15,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 /**
- * Hello world!
+ * @author hos0052
  */
 public class App {
 
@@ -25,19 +26,18 @@ public class App {
     private static double maxX;
 
     public static void main(String[] args) throws IOException {
-        final int numberOfHiddenNeurons = 10;
+        final int numberOfHiddenNeurons = 1;
         final double learningRule = 0.002;
-        final double targetMSE = 0.0000000005;
         final int maxEpochs = 1000;
-        final int shift = 20;
+        final int shift = 2;
         final int numberOfInputNeurons = shift;
-        List<Double> beforeValues = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
 
-        importCSVIntoList(beforeValues);
-        double meanBeforeValues = calculateMean(beforeValues);
-        System.out.printf("Before diff mean = %s, dispersion = %s\n", meanBeforeValues, calculateDispersion(meanBeforeValues, beforeValues));
+        importCSVIntoList(values);
+        double meanBeforeValues = calculateMean(values);
+        System.out.printf("Before diff mean = %s, dispersion = %s\n", meanBeforeValues, calculateDispersion(meanBeforeValues, values));
 
-        List<Double> differencesInValues = calculateDifferences(beforeValues);
+        List<Double> differencesInValues = calculateDifferences(values);
         double meanDifferencesInValues = calculateMean(differencesInValues);
         System.out.printf("Diff mean = %s, dispersion = %s\n", meanDifferencesInValues, calculateDispersion(meanDifferencesInValues, differencesInValues));
 
@@ -60,7 +60,7 @@ public class App {
         System.out.println("Original values");
         calculateAndPrintLayerOutputs(dataSet, inputLayer, hiddenLayer, outputLayer);
 
-        final BackPropagation backPropagation = new BackPropagation(inputLayer, learningRule, targetMSE, maxEpochs);
+        final BackPropagation backPropagation = new BackPropagation(inputLayer, learningRule, maxEpochs);
         backPropagation.calculateMSE(validatingDataSet);
         backPropagation.train(trainingDataSet);
 
@@ -70,21 +70,21 @@ public class App {
 
     }
 
-    private static double calculateDispersion(double meanBeforeValues, List<Double> beforeValues) {
+    private static double calculateDispersion(double meanBeforeValues, List<Double> values) {
         double temp = 0;
-        for (double a : beforeValues)
+        for (double a : values)
             temp += (a - meanBeforeValues) * (a - meanBeforeValues);
-        return Math.sqrt(temp / (beforeValues.size() - 1));
+        return Math.sqrt(temp / (values.size() - 1));
     }
 
-    private static double calculateMean(List<Double> beforeValues) {
+    private static double calculateMean(List<Double> values) {
         double sum = 0.0;
-        for (double a : beforeValues)
+        for (double a : values)
             sum += a;
-        return sum / beforeValues.size();
+        return sum / values.size();
     }
 
-    private static void importCSVIntoList(List<Double> beforeValues) throws IOException {
+    private static void importCSVIntoList(List<Double> values) throws IOException {
         List<String> dataFromFile = new ArrayList<>();
 
         try (
@@ -97,16 +97,16 @@ public class App {
             }
             for (int i = 0; i < dataFromFile.size(); i++) {
                 if (isNumeric(dataFromFile.get(i))) {
-                    beforeValues.add(Double.parseDouble(dataFromFile.get(i)));
+                    values.add(Double.parseDouble(dataFromFile.get(i)));
                 } else {
                     Double previousNumber = Double.parseDouble(dataFromFile.get(i - 1));
                     Double nextNumber = getNextNumber(dataFromFile, i);
-                    beforeValues.add((nextNumber + previousNumber) / 2);
+                    values.add((nextNumber + previousNumber) / 2);
                 }
             }
 
         } catch (CustomException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(App.class.getName()).log(Level.SEVERE, ex.getMessage(), ex);
         }
     }
 
@@ -124,7 +124,7 @@ public class App {
     }
 
 
-    public static boolean isNumeric(String strNum) {
+    private static boolean isNumeric(String strNum) {
         try {
             Double.parseDouble(strNum);
         } catch (NumberFormatException | NullPointerException nfe) {
@@ -164,13 +164,12 @@ public class App {
                 List<Double> denormalizedOutput = denormalizeOutput(calculatedOutput);
                 List<Double> denormalizedExpectedOutput = denormalizeOutput(row.getExpectedOutputs());
                 List<Double> denormalizedInputs = denormalizeOutput(row.getInputs());
-//                System.out.printf("inputs: %s, expected output: %s, calculated output: %s\n", denormalizedInputs, denormalizedExpectedOutput, denormalizedOutput);
-                System.out.printf("%s\n",denormalizedOutput);
+                System.out.printf("inputs: %s, expected output: %s, calculated output: %s\n", denormalizedInputs, denormalizedExpectedOutput, denormalizedOutput);
             }
     }
 
     private static List<Double> denormalizeOutput(List<Double> calculatedOutput) {
-        List<Double> denormalizedListOfDoubles = new ArrayList<>();
+        List<Double> denormalizedListOfDoubles = new ArrayList<>(2);
         for (Double normalizedX : calculatedOutput) {
             double denormalized = ((((normalizedX + 1.0) / 2) * (maxX - minX) + minX));
 
@@ -181,7 +180,7 @@ public class App {
     }
 
     private static List<DataSetRow> createDataSet(List<Double> data, int posun) {
-        List<DataSetRow> dataSet = new ArrayList<>();
+        List<DataSetRow> dataSet = new ArrayList<>(2);
         for (int i = posun; i < data.size(); i++) {
             List<Double> inputs = new ArrayList<>();
             List<Double> outputs = new ArrayList<>();
